@@ -1,14 +1,38 @@
 #include "RisingTides.h"
+#include "queue.h"
 using namespace std;
 
 Grid<bool> floodedRegionsIn(const Grid<double>& terrain,
                             const Vector<GridLocation>& sources,
                             double height) {
-    /* TODO: Delete this line and the next four lines, then implement this function. */
-    (void) terrain;
-    (void) sources;
-    (void) height;
-    return {};
+    Grid<bool> flooded(terrain.numRows(), terrain.numCols(), false);
+    Queue<GridLocation> toExplore;
+
+    for (const GridLocation& src : sources) {
+        if (terrain.inBounds(src.row, src.col) && terrain[src.row][src.col] <= height) {
+            toExplore.enqueue(src);
+            flooded[src.row][src.col] = true;
+        }
+    }
+
+    while (!toExplore.isEmpty()) {
+        GridLocation curr = toExplore.dequeue();
+
+        Vector<GridLocation> neighbors = {
+            {curr.row - 1, curr.col}, {curr.row + 1, curr.col},
+            {curr.row, curr.col - 1}, {curr.row, curr.col + 1}
+        };
+
+        for (const GridLocation& next : neighbors) {
+            if (terrain.inBounds(next.row, next.col) && !flooded[next.row][next.col]
+                && terrain[next.row][next.col] <= height) {
+                toExplore.enqueue(next);
+                flooded[next.row][next.col] = true;
+            }
+        }
+    }
+
+    return flooded;
 }
 
 
